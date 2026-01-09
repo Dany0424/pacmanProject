@@ -1,0 +1,76 @@
+name: CI/CT
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      checks: write
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Instalar dependencias y construir proyecto
+        run: mvn clean install -DskipTests
+      
+      - name: Ejecutar pruebas unitarias
+        run: mvn test
+      
+      - name: Generar reporte de cobertura JaCoCo
+        run: mvn jacoco:report
+      
+      - name: Subir reporte de cobertura como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage-report
+          path: target/site/jacoco/
+          retention-days: 30
+      
+      - name: Verificar cobertura mínima
+        run: mvn jacoco:check
+      
+      - name: Limpiar archivos temporales
+        if: always()
+        run: mvn clean -Dmaven.clean.failOnError=false
+      
+      - name: Resumen de resultados
+        if: always()
+        run: |
+          echo "## 📊 Resumen de CI/CT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Detalles" >> $GITHUB_STEP_SUMMARY
+          echo "- **Rama**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Actor**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Notificar éxito
+        if: success()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Estado**: Todas las pruebas pasaron exitosamente" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Notificar fallo
+        if: failure()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Estado**: Algunas pruebas fallaron. Revisa los logs para más detalles." >> $GITHUB_STEP_SUMMARY
