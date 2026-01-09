@@ -10,6 +10,7 @@ public class Board extends JPanel implements ActionListener {
     private int currentLevel = 1;
     private int totalDots = 0;
     private static final int BLOCK_SIZE = 20;
+    private static final int MAX_LEVELS = 3;
     
     // Elementos del laberinto:
     // 0 = vacío, 1 = pared, 2 = punto (dot)
@@ -160,7 +161,7 @@ public class Board extends JPanel implements ActionListener {
     
     private void nextLevel() {
         currentLevel++;
-        if (currentLevel > 3) {
+        if (currentLevel > MAX_LEVELS) {
             currentLevel = 1;
         }
         loadLevel(currentLevel);
