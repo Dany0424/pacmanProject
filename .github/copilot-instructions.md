@@ -25,7 +25,6 @@ PascalCase).
 - Ejecutar pruebas: `mvn test`
 - Ver cobertura: `mvn jacoco:report`
 - Validación completa: `mvn verify`
-
 ## Actions de Integración y Prueba Continua
 - Ejecuta la acción en cada push y pull request dirigido a las ramas principales (`main`,
 `develop`).
