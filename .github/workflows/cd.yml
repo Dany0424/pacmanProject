@@ -1,0 +1,304 @@
+name: CD - Continuous Deployment
+
+on:
+  workflow_run:
+    workflows: ["CI/CT"]
+    types:
+      - completed
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Construir JAR del juego
+        run: mvn clean package -DskipTests
+      
+      - name: Obtener información del artefacto
+        id: jar-info
+        run: |
+          JAR_FILE=$(ls target/*.jar | head -1)
+          JAR_NAME=$(basename $JAR_FILE)
+          JAR_SIZE=$(du -h $JAR_FILE | cut -f1)
+          echo "jar_file=$JAR_FILE" >> $GITHUB_OUTPUT
+          echo "jar_name=$JAR_NAME" >> $GITHUB_OUTPUT
+          echo "jar_size=$JAR_SIZE" >> $GITHUB_OUTPUT
+          echo "build_date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+          echo "commit_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      
+      - name: Crear directorio para GitHub Pages
+        run: |
+          mkdir -p gh-pages
+          cp ${{ steps.jar-info.outputs.jar_file }} gh-pages/
+      
+      - name: Crear página de descarga
+        run: |
+          cat > gh-pages/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>PacMan Game - Descarga</title>
+              <style>
+                  * {
+                      margin: 0;
+                      padding: 0;
+                      box-sizing: border-box;
+                  }
+                  
+                  body {
+                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      min-height: 100vh;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      padding: 20px;
+                  }
+                  
+                  .container {
+                      background: white;
+                      border-radius: 20px;
+                      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                      padding: 40px;
+                      max-width: 600px;
+                      width: 100%;
+                      text-align: center;
+                  }
+                  
+                  .game-title {
+                      font-size: 3em;
+                      color: #667eea;
+                      margin-bottom: 10px;
+                      font-weight: bold;
+                      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+                  }
+                  
+                  .subtitle {
+                      color: #666;
+                      font-size: 1.2em;
+                      margin-bottom: 30px;
+                  }
+                  
+                  .info-section {
+                      background: #f7f7f7;
+                      border-radius: 10px;
+                      padding: 20px;
+                      margin: 20px 0;
+                  }
+                  
+                  .info-item {
+                      display: flex;
+                      justify-content: space-between;
+                      padding: 10px 0;
+                      border-bottom: 1px solid #ddd;
+                  }
+                  
+                  .info-item:last-child {
+                      border-bottom: none;
+                  }
+                  
+                  .info-label {
+                      font-weight: bold;
+                      color: #555;
+                  }
+                  
+                  .info-value {
+                      color: #667eea;
+                  }
+                  
+                  .download-btn {
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      color: white;
+                      border: none;
+                      padding: 15px 40px;
+                      font-size: 1.2em;
+                      border-radius: 50px;
+                      cursor: pointer;
+                      text-decoration: none;
+                      display: inline-block;
+                      margin-top: 20px;
+                      transition: transform 0.2s, box-shadow 0.2s;
+                      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                  }
+                  
+                  .download-btn:hover {
+                      transform: translateY(-2px);
+                      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+                  }
+                  
+                  .instructions {
+                      margin-top: 30px;
+                      text-align: left;
+                      background: #fff9e6;
+                      padding: 20px;
+                      border-radius: 10px;
+                      border-left: 4px solid #ffd700;
+                  }
+                  
+                  .instructions h3 {
+                      color: #667eea;
+                      margin-bottom: 15px;
+                  }
+                  
+                  .instructions ol {
+                      margin-left: 20px;
+                      line-height: 1.8;
+                  }
+                  
+                  .instructions li {
+                      color: #555;
+                      margin-bottom: 10px;
+                  }
+                  
+                  .footer {
+                      margin-top: 30px;
+                      color: #999;
+                      font-size: 0.9em;
+                  }
+                  
+                  .emoji {
+                      font-size: 1.5em;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1 class="game-title">🎮 PacMan Game</h1>
+                  <p class="subtitle">¡Descarga y juega al clásico PacMan!</p>
+                  
+                  <div class="info-section">
+                      <div class="info-item">
+                          <span class="info-label">📦 Archivo:</span>
+                          <span class="info-value" id="jar-name">Loading...</span>
+                      </div>
+                      <div class="info-item">
+                          <span class="info-label">💾 Tamaño:</span>
+                          <span class="info-value" id="jar-size">Loading...</span>
+                      </div>
+                      <div class="info-item">
+                          <span class="info-label">📅 Fecha de Build:</span>
+                          <span class="info-value" id="build-date">Loading...</span>
+                      </div>
+                      <div class="info-item">
+                          <span class="info-label">🔖 Commit:</span>
+                          <span class="info-value" id="commit-hash">Loading...</span>
+                      </div>
+                      <div class="info-item">
+                          <span class="info-label">🌿 Rama:</span>
+                          <span class="info-value" id="branch">Loading...</span>
+                      </div>
+                  </div>
+                  
+                  <a href="#" id="download-link" class="download-btn">
+                      ⬇️ Descargar PacMan.jar
+                  </a>
+                  
+                  <div class="instructions">
+                      <h3>📋 Instrucciones de Ejecución</h3>
+                      <ol>
+                          <li>Asegúrate de tener <strong>Java 17</strong> o superior instalado</li>
+                          <li>Descarga el archivo JAR haciendo clic en el botón de arriba</li>
+                          <li>Abre una terminal en la carpeta donde descargaste el archivo</li>
+                          <li>Ejecuta el comando: <code>java -jar <span id="jar-name-cmd">pacman-project-1.0-SNAPSHOT.jar</span></code></li>
+                          <li>¡Disfruta del juego! 🎉</li>
+                      </ol>
+                  </div>
+                  
+                  <div class="footer">
+                      <p>🚀 Construido automáticamente con GitHub Actions</p>
+                      <p>⚡ Actualizado en cada commit exitoso</p>
+                  </div>
+              </div>
+              
+              <script>
+                  // Cargar metadata del build
+                  fetch('build-info.json')
+                      .then(response => response.json())
+                      .then(data => {
+                          document.getElementById('jar-name').textContent = data.jar_name;
+                          document.getElementById('jar-size').textContent = data.jar_size;
+                          document.getElementById('build-date').textContent = data.build_date;
+                          document.getElementById('commit-hash').textContent = data.commit_short;
+                          document.getElementById('branch').textContent = data.branch;
+                          document.getElementById('jar-name-cmd').textContent = data.jar_name;
+                          document.getElementById('download-link').href = data.jar_name;
+                      })
+                      .catch(error => {
+                          console.error('Error cargando información del build:', error);
+                          // Valores por defecto en caso de error
+                          document.getElementById('jar-name').textContent = 'pacman-project-1.0-SNAPSHOT.jar';
+                          document.getElementById('jar-size').textContent = 'N/A';
+                          document.getElementById('build-date').textContent = 'N/A';
+                          document.getElementById('commit-hash').textContent = 'N/A';
+                          document.getElementById('branch').textContent = 'N/A';
+                          document.getElementById('download-link').href = 'pacman-project-1.0-SNAPSHOT.jar';
+                      });
+              </script>
+          </body>
+          </html>
+          EOF
+      
+      - name: Crear archivo de metadatos
+        run: |
+          cat > gh-pages/build-info.json << EOF
+          {
+            "jar_name": "${{ steps.jar-info.outputs.jar_name }}",
+            "jar_size": "${{ steps.jar-info.outputs.jar_size }}",
+            "build_date": "${{ steps.jar-info.outputs.build_date }}",
+            "commit_short": "${{ steps.jar-info.outputs.commit_short }}",
+            "commit_full": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "workflow_run_id": "${{ github.run_id }}",
+            "actor": "${{ github.actor }}"
+          }
+          EOF
+      
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Subir artefactos a GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh-pages
+      
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      
+      - name: Resumen del despliegue
+        run: |
+          echo "## 🚀 Resumen de CD" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Detalles del Despliegue" >> $GITHUB_STEP_SUMMARY
+          echo "- **JAR**: ${{ steps.jar-info.outputs.jar_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tamaño**: ${{ steps.jar-info.outputs.jar_size }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ steps.jar-info.outputs.commit_short }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Rama**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Fecha**: ${{ steps.jar-info.outputs.build_date }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 GitHub Pages" >> $GITHUB_STEP_SUMMARY
+          echo "La página de descarga está disponible en:" >> $GITHUB_STEP_SUMMARY
+          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Despliegue completado exitosamente**" >> $GITHUB_STEP_SUMMARY
