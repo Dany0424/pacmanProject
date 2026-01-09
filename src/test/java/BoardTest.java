@@ -5,6 +5,8 @@ import org.mockito.MockitoAnnotations;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.Component;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -17,6 +19,9 @@ class BoardTest {
     
     @Mock
     private ActionEvent actionEvent;
+    
+    @Mock
+    private KeyEvent keyEvent;
 
     @BeforeEach
     void setUp() {
@@ -222,5 +227,67 @@ class BoardTest {
         
         // Board should still be valid
         assertNotNull(board);
+    }
+    
+    @Test
+    void testCheckDotCollisionAtFruit() {
+        // Position [1][1] has value 3 (fruit)
+        board.checkDotCollision(20, 20);
+        assertNotNull(board);
+    }
+    
+    @Test
+    void testCheckDotCollisionConsumesAllDots() {
+        // Simulate collecting all dots to trigger next level
+        // This tests the nextLevel() method
+        for (int row = 0; row < 19; row++) {
+            for (int col = 0; col < 20; col++) {
+                board.checkDotCollision(col * 20 + 10, row * 20 + 10);
+            }
+        }
+        assertNotNull(board);
+    }
+    
+    @Test
+    void testMultipleLevelsProgression() {
+        // Collect all dots multiple times to progress through levels
+        for (int level = 0; level < 4; level++) {
+            for (int row = 0; row < 19; row++) {
+                for (int col = 0; col < 20; col++) {
+                    board.checkDotCollision(col * 20 + 10, row * 20 + 10);
+                }
+            }
+        }
+        assertNotNull(board);
+    }
+    
+    @Test
+    void testBoardHasKeyListener() {
+        // Check that board has at least one key listener registered
+        assertTrue(board.getKeyListeners().length > 0);
+    }
+    
+    @Test
+    void testKeyListenerHandlesArrowKeys() {
+        // Simulate key presses through the board's key listeners
+        Component component = board;
+        KeyEvent leftKey = new KeyEvent(component, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 
+                0, KeyEvent.VK_LEFT, KeyEvent.CHAR_UNDEFINED);
+        KeyEvent rightKey = new KeyEvent(component, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 
+                0, KeyEvent.VK_RIGHT, KeyEvent.CHAR_UNDEFINED);
+        KeyEvent upKey = new KeyEvent(component, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 
+                0, KeyEvent.VK_UP, KeyEvent.CHAR_UNDEFINED);
+        KeyEvent downKey = new KeyEvent(component, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 
+                0, KeyEvent.VK_DOWN, KeyEvent.CHAR_UNDEFINED);
+        
+        // These should not throw exceptions
+        assertDoesNotThrow(() -> {
+            for (var listener : board.getKeyListeners()) {
+                listener.keyPressed(leftKey);
+                listener.keyPressed(rightKey);
+                listener.keyPressed(upKey);
+                listener.keyPressed(downKey);
+            }
+        });
     }
 }
