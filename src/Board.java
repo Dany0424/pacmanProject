@@ -91,8 +91,8 @@ public class Board extends JPanel implements ActionListener {
         pacman = new Pacman(180, 300, this);
         ghosts = new Ghost[] {
             new Ghost(180, 180, Color.RED, this),
-            new Ghost(60, 60, Color.PINK, this),
-            new Ghost(300, 60, Color.CYAN, this)
+            new Ghost(200, 180, Color.PINK, this),
+            new Ghost(180, 220, Color.CYAN, this)
         };
         timer = new Timer(40, this);
         timer.start();
