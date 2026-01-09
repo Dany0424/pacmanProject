@@ -246,16 +246,16 @@ public class Board extends JPanel implements ActionListener {
         
         // Mostrar información del juego
         g.setColor(Color.YELLOW);
-        g.drawString("Score: " + pacman.getScore(), 10, 395);
-        g.drawString("Level: " + currentLevel, 180, 395);
-        g.drawString("Lives: " + pacman.getLives(), 260, 395);
-        g.drawString("Dots: " + totalDots, 320, 395);
+        g.drawString("Puntuación: " + pacman.getScore(), 10, 395);
+        g.drawString("Nivel: " + currentLevel, 180, 395);
+        g.drawString("Vidas: " + pacman.getLives(), 260, 395);
+        g.drawString("Puntos: " + totalDots, 320, 395);
         
         // Mostrar mensaje de game over
         if (gameOver) {
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 36));
-            g.drawString("GAME OVER", 90, 200);
+            g.drawString("FIN DEL JUEGO", 70, 200);
             g.setFont(new Font("Arial", Font.PLAIN, 14));
         }
     }
