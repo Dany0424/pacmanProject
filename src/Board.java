@@ -12,6 +12,7 @@ public class Board extends JPanel implements ActionListener {
     private boolean gameOver = false;
     private static final int BLOCK_SIZE = 20;
     private static final int MAX_LEVELS = 3;
+    private static final int COLLISION_THRESHOLD = 18;
     
     // Elementos del laberinto:
     // 0 = vacío, 1 = pared, 2 = punto (dot)
@@ -184,13 +185,13 @@ public class Board extends JPanel implements ActionListener {
             int ghostX = ghost.getX();
             int ghostY = ghost.getY();
             
-            // Calcular distancia entre pacman y fantasma
+            // Calculate distance between pacman and ghost
             int dx = pacmanX - ghostX;
             int dy = pacmanY - ghostY;
             double distance = Math.sqrt(dx * dx + dy * dy);
             
-            // Si la distancia es menor a un umbral, hay colisión
-            if (distance < 18) {
+            // If distance is less than threshold, collision occurred
+            if (distance < COLLISION_THRESHOLD) {
                 handleLifeLoss();
                 break;
             }
@@ -204,7 +205,7 @@ public class Board extends JPanel implements ActionListener {
             gameOver = true;
             timer.stop();
         } else {
-            // Reiniciar posiciones
+            // Reset positions
             pacman.reset(180, 300);
             for (Ghost ghost : ghosts) {
                 ghost.reset();
