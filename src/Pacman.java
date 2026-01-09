@@ -78,6 +78,10 @@ public class Pacman {
         lives--;
     }
     
+    public void addLife() {
+        lives++;
+    }
+    
     public boolean isGameOver() {
         return lives <= 0;
     }
