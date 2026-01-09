@@ -16,6 +16,9 @@ public class Board extends JPanel implements ActionListener {
     private static final int BOARD_WIDTH = 20; // 20 columnas
     private static final int BOARD_HEIGHT = 19; // 19 filas
     private static final int STATUS_BAR_HEIGHT = 30; // Altura de la barra de estado
+    private static final int FRUIT_BONUS_POINTS = 50;
+    private static final int FRUIT_SIZE = 12;
+    private static final int FRUIT_OFFSET = 4;
     
     // Elementos del laberinto:
     // 0 = vacío, 1 = pared, 2 = punto (dot), 3 = fruta (fruit)
@@ -168,7 +171,7 @@ public class Board extends JPanel implements ActionListener {
             } else if (maze[row][col] == 3) {
                 maze[row][col] = 0;
                 pacman.addLife();
-                pacman.addScore(50);
+                pacman.addScore(FRUIT_BONUS_POINTS);
             }
         }
     }
@@ -255,7 +258,7 @@ public class Board extends JPanel implements ActionListener {
                 } else if (maze[row][col] == 3) {
                     // Dibujar fruta (roja)
                     g.setColor(Color.RED);
-                    g.fillOval(x + 4, y + 4, 12, 12);
+                    g.fillOval(x + FRUIT_OFFSET, y + FRUIT_OFFSET, FRUIT_SIZE, FRUIT_SIZE);
                 }
             }
         }

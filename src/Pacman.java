@@ -6,6 +6,7 @@ public class Pacman {
     private Direction direction = Direction.LEFT;
     private int score = 0;
     private int lives = 3;
+    private static final int MAX_LIVES = 9;
     private Board board;
     private static final int SIZE = 20;
 
@@ -79,7 +80,9 @@ public class Pacman {
     }
     
     public void addLife() {
-        lives++;
+        if (lives < MAX_LIVES) {
+            lives++;
+        }
     }
     
     public boolean isGameOver() {
