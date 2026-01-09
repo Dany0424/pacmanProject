@@ -16,14 +16,17 @@ public class Board extends JPanel implements ActionListener {
     private static final int BOARD_WIDTH = 20; // 20 columnas
     private static final int BOARD_HEIGHT = 19; // 19 filas
     private static final int STATUS_BAR_HEIGHT = 30; // Altura de la barra de estado
+    private static final int FRUIT_BONUS_POINTS = 50;
+    private static final int FRUIT_SIZE = 12;
+    private static final int FRUIT_OFFSET = 4;
     
     // Elementos del laberinto:
-    // 0 = vacío, 1 = pared, 2 = punto (dot)
+    // 0 = vacío, 1 = pared, 2 = punto (dot), 3 = fruta (fruit)
     
     // Nivel 1 - Laberinto simple
     private int[][] level1 = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1},
+        {1,3,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,3,1},
         {1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1},
         {1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1},
         {1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
@@ -39,14 +42,14 @@ public class Board extends JPanel implements ActionListener {
         {1,2,1,1,2,1,2,1,2,1,1,2,1,2,1,2,1,1,2,1},
         {1,2,2,2,2,1,2,2,2,2,2,2,2,2,1,2,2,2,2,1},
         {1,2,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,2,1},
-        {1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
+        {1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
     
     // Nivel 2 - Laberinto con cruz central
     private int[][] level2 = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
+        {1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1},
         {1,2,1,1,1,2,1,1,1,1,1,1,1,1,2,1,1,1,2,1},
         {1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,1},
         {1,2,1,2,1,1,1,2,1,1,1,1,2,1,1,1,2,1,2,1},
@@ -62,14 +65,14 @@ public class Board extends JPanel implements ActionListener {
         {1,2,1,2,1,1,1,2,1,1,1,1,2,1,1,1,2,1,2,1},
         {1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,1},
         {1,2,1,1,1,2,1,1,1,1,1,1,1,1,2,1,1,1,2,1},
-        {1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
+        {1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
     
     // Nivel 3 - Laberinto complejo
     private int[][] level3 = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
+        {1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1},
         {1,2,1,1,2,1,1,1,1,2,2,1,1,1,1,2,1,1,2,1},
         {1,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,1},
         {1,1,2,1,2,1,2,1,1,1,1,1,1,2,1,2,1,2,1,1},
@@ -85,7 +88,7 @@ public class Board extends JPanel implements ActionListener {
         {1,1,2,1,2,1,2,1,1,1,1,1,1,2,1,2,1,2,1,1},
         {1,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,1},
         {1,2,1,1,2,1,1,1,1,2,2,1,1,1,1,2,1,1,2,1},
-        {1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1},
+        {1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
 
@@ -165,6 +168,10 @@ public class Board extends JPanel implements ActionListener {
                 if (totalDots == 0) {
                     nextLevel();
                 }
+            } else if (maze[row][col] == 3) {
+                maze[row][col] = 0;
+                pacman.addLife();
+                pacman.addScore(FRUIT_BONUS_POINTS);
             }
         }
     }
@@ -248,6 +255,10 @@ public class Board extends JPanel implements ActionListener {
                     // Dibujar punto
                     g.setColor(Color.WHITE);
                     g.fillOval(x + 7, y + 7, 6, 6);
+                } else if (maze[row][col] == 3) {
+                    // Dibujar fruta (roja)
+                    g.setColor(Color.RED);
+                    g.fillOval(x + FRUIT_OFFSET, y + FRUIT_OFFSET, FRUIT_SIZE, FRUIT_SIZE);
                 }
             }
         }
