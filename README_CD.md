@@ -85,6 +85,11 @@ https://<usuario>.github.io/<repositorio>/
 
 Por ejemplo:
 ```
+https://yourusername.github.io/yourrepository/
+```
+
+Para este proyecto específico:
+```
 https://Dany0424.github.io/pacmanProject/
 ```
 

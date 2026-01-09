@@ -36,6 +36,10 @@ jobs:
       - name: Obtener información del artefacto
         id: jar-info
         run: |
+          if [ ! -d "target" ] || [ -z "$(ls -A target/*.jar 2>/dev/null)" ]; then
+            echo "Error: No se encontró el archivo JAR en el directorio target"
+            exit 1
+          fi
           JAR_FILE=$(ls target/*.jar | head -1)
           JAR_NAME=$(basename $JAR_FILE)
           JAR_SIZE=$(du -h $JAR_FILE | cut -f1)
@@ -234,7 +238,12 @@ jobs:
               <script>
                   // Cargar metadata del build
                   fetch('build-info.json')
-                      .then(response => response.json())
+                      .then(response => {
+                          if (!response.ok) {
+                              throw new Error('No se pudo cargar la información del build');
+                          }
+                          return response.json();
+                      })
                       .then(data => {
                           document.getElementById('jar-name').textContent = data.jar_name;
                           document.getElementById('jar-size').textContent = data.jar_size;
