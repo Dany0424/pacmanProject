@@ -13,6 +13,9 @@ public class Board extends JPanel implements ActionListener {
     private static final int BLOCK_SIZE = 20;
     private static final int MAX_LEVELS = 3;
     private static final int COLLISION_THRESHOLD = 18;
+    private static final int BOARD_WIDTH = 20; // 20 columnas
+    private static final int BOARD_HEIGHT = 19; // 19 filas
+    private static final int STATUS_BAR_HEIGHT = 30; // Altura de la barra de estado
     
     // Elementos del laberinto:
     // 0 = vacío, 1 = pared, 2 = punto (dot)
@@ -99,6 +102,11 @@ public class Board extends JPanel implements ActionListener {
         timer = new Timer(40, this);
         timer.start();
         addKeyListener(new PacmanKeyAdapter());
+    }
+    
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(BOARD_WIDTH * BLOCK_SIZE, BOARD_HEIGHT * BLOCK_SIZE + STATUS_BAR_HEIGHT);
     }
     
     private void loadLevel(int level) {
@@ -244,12 +252,19 @@ public class Board extends JPanel implements ActionListener {
             }
         }
         
+        // Dibujar barra de estado con fondo
+        int statusBarY = BOARD_HEIGHT * BLOCK_SIZE;
+        g.setColor(new Color(0, 0, 50)); // Fondo azul oscuro para la barra de estado
+        g.fillRect(0, statusBarY, BOARD_WIDTH * BLOCK_SIZE, STATUS_BAR_HEIGHT);
+        
         // Mostrar información del juego
         g.setColor(Color.YELLOW);
-        g.drawString("Puntuación: " + pacman.getScore(), 10, 395);
-        g.drawString("Nivel: " + currentLevel, 180, 395);
-        g.drawString("Vidas: " + pacman.getLives(), 260, 395);
-        g.drawString("Puntos: " + totalDots, 320, 395);
+        g.setFont(new Font("Arial", Font.BOLD, 12));
+        int textY = statusBarY + 20; // Centrar texto verticalmente en la barra
+        g.drawString("Puntuación: " + pacman.getScore(), 10, textY);
+        g.drawString("Nivel: " + currentLevel, 130, textY);
+        g.drawString("Vidas: " + pacman.getLives(), 220, textY);
+        g.drawString("Puntos: " + totalDots, 300, textY);
         
         // Mostrar mensaje de game over
         if (gameOver) {
