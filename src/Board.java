@@ -255,7 +255,10 @@ public class Board extends JPanel implements ActionListener {
         if (gameOver) {
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 36));
-            g.drawString("FIN DEL JUEGO", 70, 200);
+            String gameOverText = "FIN DEL JUEGO";
+            int textWidth = g.getFontMetrics().stringWidth(gameOverText);
+            int x = (getWidth() - textWidth) / 2;
+            g.drawString(gameOverText, x, 200);
             g.setFont(new Font("Arial", Font.PLAIN, 14));
         }
     }
