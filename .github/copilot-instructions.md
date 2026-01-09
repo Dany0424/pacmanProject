@@ -25,7 +25,7 @@ PascalCase).
 - Ejecutar pruebas: `mvn test`
 - Ver cobertura: `mvn jacoco:report`
 - Validación completa: `mvn verify`
-## Actions de Integración y Prueba Continua
+## Actions de Integración y Prueba Continua (CI/CT)
 - Ejecuta la acción en cada push y pull request dirigido a las ramas principales (`main`,
 `develop`).
 - Instala las dependencias y construye el proyecto utilizando Maven (`mvn clean install`).
@@ -43,3 +43,11 @@ generados durante la ejecución.
 mediante comentarios o checks de GitHub.
 - Mantén el archivo `copilot-instructions.md` actualizado para reflejar cualquier cambio
 relevante en el proceso de integración y prueba continua.
+## Actions de Despliegue Continuo (CD)
+- Se ejecuta automáticamente solo cuando el workflow `ci-ct.yml` finaliza con éxito.
+- Construye el archivo JAR del juego utilizando Maven (`mvn clean package -DskipTests`).
+- Crea una landing page HTML atractiva para descargar el JAR del juego.
+- Genera un archivo JSON con metadatos del build (nombre del JAR, tamaño, fecha, commit, rama).
+- Despliega la landing page y el JAR en GitHub Pages.
+- La página de descarga está disponible en: `https://<usuario>.github.io/<repositorio>/`
+- Proporciona un resumen del despliegue con todos los detalles relevantes.
