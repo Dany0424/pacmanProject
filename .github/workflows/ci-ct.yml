@@ -54,13 +54,19 @@ jobs:
         run: |
           echo "## 📊 Resumen de CI/CT" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ ${{ job.status }} == 'success' ]; then
-            echo "✅ **Estado**: Todas las pruebas pasaron exitosamente" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **Estado**: Algunas pruebas fallaron" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Detalles" >> $GITHUB_STEP_SUMMARY
           echo "- **Rama**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Actor**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Notificar éxito
+        if: success()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Estado**: Todas las pruebas pasaron exitosamente" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Notificar fallo
+        if: failure()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Estado**: Algunas pruebas fallaron. Revisa los logs para más detalles." >> $GITHUB_STEP_SUMMARY
