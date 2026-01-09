@@ -5,6 +5,7 @@ public class Pacman {
     private int x, y;
     private Direction direction = Direction.LEFT;
     private int score = 0;
+    private int lives = 3;
     private Board board;
     private static final int SIZE = 20;
 
@@ -67,5 +68,17 @@ public class Pacman {
         this.x = x;
         this.y = y;
         this.direction = Direction.LEFT;
+    }
+    
+    public int getLives() {
+        return lives;
+    }
+    
+    public void loseLife() {
+        lives--;
+    }
+    
+    public boolean isGameOver() {
+        return lives <= 0;
     }
 }

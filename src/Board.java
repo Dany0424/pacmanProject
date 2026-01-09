@@ -9,8 +9,10 @@ public class Board extends JPanel implements ActionListener {
     private int[][] maze;
     private int currentLevel = 1;
     private int totalDots = 0;
+    private boolean gameOver = false;
     private static final int BLOCK_SIZE = 20;
     private static final int MAX_LEVELS = 3;
+    private static final int COLLISION_THRESHOLD = 18;
     
     // Elementos del laberinto:
     // 0 = vacío, 1 = pared, 2 = punto (dot)
@@ -170,6 +172,46 @@ public class Board extends JPanel implements ActionListener {
             ghost.reset();
         }
     }
+    
+    private void checkGhostCollision() {
+        if (gameOver) {
+            return;
+        }
+        
+        int pacmanX = pacman.getX();
+        int pacmanY = pacman.getY();
+        
+        for (Ghost ghost : ghosts) {
+            int ghostX = ghost.getX();
+            int ghostY = ghost.getY();
+            
+            // Calculate distance between pacman and ghost
+            int dx = pacmanX - ghostX;
+            int dy = pacmanY - ghostY;
+            double distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // If distance is less than threshold, collision occurred
+            if (distance < COLLISION_THRESHOLD) {
+                handleLifeLoss();
+                break;
+            }
+        }
+    }
+    
+    private void handleLifeLoss() {
+        pacman.loseLife();
+        
+        if (pacman.isGameOver()) {
+            gameOver = true;
+            timer.stop();
+        } else {
+            // Reset positions
+            pacman.reset(180, 300);
+            for (Ghost ghost : ghosts) {
+                ghost.reset();
+            }
+        }
+    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -205,17 +247,29 @@ public class Board extends JPanel implements ActionListener {
         // Mostrar información del juego
         g.setColor(Color.YELLOW);
         g.drawString("Score: " + pacman.getScore(), 10, 395);
-        g.drawString("Level: " + currentLevel, 320, 395);
-        g.drawString("Dots: " + totalDots, 180, 395);
+        g.drawString("Level: " + currentLevel, 180, 395);
+        g.drawString("Lives: " + pacman.getLives(), 260, 395);
+        g.drawString("Dots: " + totalDots, 320, 395);
+        
+        // Mostrar mensaje de game over
+        if (gameOver) {
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 36));
+            g.drawString("GAME OVER", 90, 200);
+            g.setFont(new Font("Arial", Font.PLAIN, 14));
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        pacman.move();
-        for (Ghost ghost : ghosts) {
-            ghost.move();
+        if (!gameOver) {
+            pacman.move();
+            for (Ghost ghost : ghosts) {
+                ghost.move();
+            }
+            checkDotCollision(pacman.getX(), pacman.getY());
+            checkGhostCollision();
         }
-        checkDotCollision(pacman.getX(), pacman.getY());
         repaint();
     }
 
