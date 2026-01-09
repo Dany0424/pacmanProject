@@ -32,11 +32,8 @@ jobs:
       - name: Instalar dependencias y construir proyecto
         run: mvn clean install -DskipTests
       
-      - name: Ejecutar pruebas unitarias
-        run: mvn test
-      
-      - name: Generar reporte de cobertura JaCoCo
-        run: mvn jacoco:report
+      - name: Ejecutar pruebas y verificar cobertura
+        run: mvn verify
       
       - name: Subir reporte de cobertura como artefacto
         if: always()
@@ -45,9 +42,6 @@ jobs:
           name: jacoco-coverage-report
           path: target/site/jacoco/
           retention-days: 30
-      
-      - name: Verificar cobertura mínima
-        run: mvn jacoco:check
       
       - name: Limpiar archivos temporales
         if: always()
