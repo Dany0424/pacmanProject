@@ -6,6 +6,7 @@ public class Pacman {
     private Direction direction = Direction.LEFT;
     private int score = 0;
     private Board board;
+    private static final int SIZE = 20;
 
     public Pacman(int x, int y, Board board) {
         this.x = x;
@@ -15,7 +16,7 @@ public class Pacman {
 
     public void draw(Graphics g) {
         g.setColor(Color.YELLOW);
-        g.fillArc(x, y, 20, 20, direction.getAngle(), 300);
+        g.fillArc(x, y, SIZE, SIZE, direction.getAngle(), 300);
     }
 
     public void move() {
@@ -29,9 +30,9 @@ public class Pacman {
             case DOWN: newY += 4; break;
         }
         
-        // Verificar colisión con paredes
-        if (!board.isWall(newX, newY) && !board.isWall(newX + 19, newY) && 
-            !board.isWall(newX, newY + 19) && !board.isWall(newX + 19, newY + 19)) {
+        // Verificar colisión con paredes (verificar las 4 esquinas del sprite)
+        if (!board.isWall(newX, newY) && !board.isWall(newX + SIZE - 1, newY) && 
+            !board.isWall(newX, newY + SIZE - 1) && !board.isWall(newX + SIZE - 1, newY + SIZE - 1)) {
             x = newX;
             y = newY;
         }

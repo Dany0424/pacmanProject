@@ -8,6 +8,7 @@ public class Ghost {
     private Color color;
     private Random random = new Random();
     private Board board;
+    private static final int SIZE = 20;
 
     public Ghost(int x, int y, Color color, Board board) {
         this.x = x;
@@ -21,7 +22,7 @@ public class Ghost {
 
     public void draw(Graphics g) {
         g.setColor(color);
-        g.fillOval(x, y, 20, 20);
+        g.fillOval(x, y, SIZE, SIZE);
     }
 
     public void move() {
@@ -39,9 +40,9 @@ public class Ghost {
             case DOWN: newY += 4; break;
         }
         
-        // Verificar colisión con paredes
-        if (!board.isWall(newX, newY) && !board.isWall(newX + 19, newY) && 
-            !board.isWall(newX, newY + 19) && !board.isWall(newX + 19, newY + 19)) {
+        // Verificar colisión con paredes (verificar las 4 esquinas del sprite)
+        if (!board.isWall(newX, newY) && !board.isWall(newX + SIZE - 1, newY) && 
+            !board.isWall(newX, newY + SIZE - 1) && !board.isWall(newX + SIZE - 1, newY + SIZE - 1)) {
             x = newX;
             y = newY;
         } else {
