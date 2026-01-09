@@ -56,4 +56,12 @@ public class Ghost {
         this.y = startY;
         this.direction = Direction.values()[random.nextInt(4)];
     }
+    
+    public int getX() {
+        return x;
+    }
+    
+    public int getY() {
+        return y;
+    }
 }
